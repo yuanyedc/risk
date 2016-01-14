@@ -1,13 +1,24 @@
-package com.risk.netty;
-
-import java.util.Date;
+package com.risk.netty.client;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
 
-public class TimeServerHandler extends ChannelHandlerAdapter {
+public class TimeClientHandler extends ChannelHandlerAdapter {
+
+	private final ByteBuf firstMessage;
+
+	public TimeClientHandler() {
+		byte[] req = "QUERY TIME ORDER".getBytes();
+		firstMessage = Unpooled.buffer(req.length);
+		firstMessage.writeBytes(req);
+	}
+
+	@Override
+	public void channelActive(ChannelHandlerContext ctx) {
+		ctx.writeAndFlush(firstMessage);
+	}
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
@@ -16,22 +27,15 @@ public class TimeServerHandler extends ChannelHandlerAdapter {
 		buf.readBytes(req);
 		try {
 			String body = new String(req, "UTF-8");
-			System.out.println("receive order:" + body);
-			String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new Date(System.currentTimeMillis()).toString() : "BAD ORDER";
-			ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
-			ctx.write(resp);
+			System.out.println("Now is:" + body);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	@Override
-	public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-		ctx.flush();
-	}
-
-	@Override
 	public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+		System.out.println("error:" + cause.getMessage());
 		ctx.close();
 	}
 }
