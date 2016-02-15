@@ -1,6 +1,10 @@
 package com.risk.bean;
 
-public class Risk {
+import java.io.Serializable;
+
+public class Risk implements Serializable {
+
+	private static final long serialVersionUID = 1L;
 
 	private String high;
 	private String low;
@@ -28,5 +32,10 @@ public class Risk {
 
 	public void setLevel(int level) {
 		this.level = level;
+	}
+
+	@Override
+	public String toString() {
+		return "{high:" + high + ",low:" + low + ",level:" + level + "}";
 	}
 }

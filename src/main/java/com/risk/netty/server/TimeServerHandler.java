@@ -9,15 +9,16 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class TimeServerHandler extends ChannelHandlerAdapter {
 
+	private int counter;
+
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg) {
-		ByteBuf buf = (ByteBuf) msg;
-		byte[] req = new byte[buf.readableBytes()];
-		buf.readBytes(req);
 		try {
-			String body = new String(req, "UTF-8");
-			System.out.println("receive order:" + body);
+			String body = (String) msg;
+			System.out.println("receive order:" + body + ";count:" + ++counter);
+
 			String currentTime = "QUERY TIME ORDER".equalsIgnoreCase(body) ? new Date(System.currentTimeMillis()).toString() : "BAD ORDER";
+			currentTime += currentTime + System.getProperty("line.separator");
 			ByteBuf resp = Unpooled.copiedBuffer(currentTime.getBytes());
 			ctx.write(resp);
 		} catch (Exception e) {
